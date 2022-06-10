@@ -1,0 +1,6 @@
+#!/bin/bash
+ololo1=`loginctl --no-ask-password list-sessions | grep "seat" | awk '{print $1}' | tr '\n' ' '`
+#loginctl --no-ask-password lock-session c2 c4
+echo "unlock"
+loginctl --no-ask-password unlock-session $ololo1
+#loginctl --no-ask-password lock-session ${loginctl --no-ask-password list-sessions | grep "seat" | grep "admin" | awk '{print $1}'}

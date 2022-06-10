@@ -1,0 +1,11 @@
+#playbook mkdir
+---
+- hosts: "all"
+  tasks:
+  - name: copy notify-lockfile
+    copy:
+      src="/home/skiff/notifydobm/notifyskiff"
+      dest="/var/admin/notifyskiff"
+      mode=0755
+      owner=root
+      group=root

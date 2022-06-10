@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#EXPIRED_TIME2="
+path_expire_date="/var/admin/expire_date"
+export DISPLAY=:0
+#proverka1=$(( $EXPIRED_TIME1 -eq "10:10" ))
+sleep 1
+proverka_time=$(date +%H:%M)
+EXPIRED_TIME1=$(cat $path_expire_date)
+#echo "EXPIRED_TIME2: $EXPIRED_TIME2"
+#echo "EXPIRED_TIME1: $EXPIRED_TIME1"
+#echo "proverka_time: $proverka_time"
+#echo $($EXPIRED_TIME1 == $proverka_time)
+#echo "proverka_hour: $proverka_hour"
+#echo "proverka_minute: $proverka_minute"
+#условие блокировки
+#if [ $EXPIRED_TIME1 == $proverka_time ]
+#if [[ $EXPIRED_TIME1 == $proverka_time ]]
+if [ "$EXPIRED_TIME1" == "$proverka_time" ]
+then
+#	echo "ssssssssssss"
+	notify-send "$EXPIRED_TIME1 Залишилося 30 хвилин безкоштовного користування" "Після цього буде платний час користування комп'ютером"
+	echo "" > $path_expire_date
+#	loginctl lock-session
+#else
+#	notify-send "ololo: $EXPIRED_TIME1 . $proverka_time"
+fi

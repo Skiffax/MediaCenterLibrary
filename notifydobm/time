@@ -1,0 +1,61 @@
+#!/bin/bash
+address_patient[1]="root@192.168.1.201"
+address_patient[2]="root@192.168.1.202"
+address_patient[3]="root@192.168.1.203"
+address_patient[4]="root@192.168.1.204"
+address_patient[5]="root@192.168.1.205"
+address_patient[6]="root@192.168.1.206"
+address_patient[7]="root@192.168.1.207"
+address_patient[8]="root@192.168.1.208"
+address_patient[9]="root@192.168.1.209"
+address_patient[10]="root@192.168.1.210"
+
+if [ $# != 0 ]
+then
+	nomer_patient=$1
+	#проверяем, чтобы номер компа был реальным
+	if [ $1 -eq "all" ]
+	then
+		var_allcomputers=address_patient
+	else
+		var_allcomputers=${address_patient[$nomer_patient]}
+	fi
+	
+	for i in var_allcomputers
+	do
+		if [ $1 -gt ${#address_patient[*]} ]
+		then
+			echo "Введён неправильный номер компьютера"
+		else
+			tempaddress=${address_patient[$nomer_patient]}
+			#если был передан параметр времени, то записываем его. если не был передан, то делаем по умолчанию 61 минуту
+			TEMP_EXPIRED_TIME=61
+			if [ $2 == 'l' ]
+			then
+				ssh $tempaddress 'bash -s' < lock_computer #script lock_computer должен лежать в той же папке, что и скрипт time
+			else
+				if [ $2 > 0 ]
+				then
+					TEMP_EXPIRED_TIME=$2
+				fi
+			#tempdata=$(echo $address_patient[$nomer_patient])
+	#		echo "tempaddress: $tempaddress"
+			echo "Устанавливается связь с компом: $nomer_patient. ip: $tempaddress"
+	#		echo "TEMP_EXPIRED_TIME: $TEMP_EXPIRED_TIME"
+			TEMP_ASC_DATE="$TEMP_EXPIRED_TIME minutes"
+			TEMP_ALL_COMMAND="date --date=\"$TEMP_ASC_DATE\" +%H:%M > /var/admin/expire_date"
+	#		echo "TEMP_ASC_DATE: $TEMP_ASC_DATE"
+	#		echo "TEMP_ALL_COMMAND: $TEMP_ALL_COMMAND"
+			echo "блокировка в: $(date --date="$TEMP_ASC_DATE" +%H:%M) (минут: $TEMP_EXPIRED_TIME)"
+		#	echo $address_patient[$nomer_patient]
+	#		ssh $tempaddress 'date --date="$TEMP_ASC_DATE" +%H:%M > /var/admin/expire_date'
+			ssh $tempaddress $TEMP_ALL_COMMAND
+			ssh $tempaddress 'bash -s' < unlock #script unlock должен лежать в той же папке, что и скрипт time
+			fi
+		fi
+	done
+	
+	echo "Конец связи"
+else
+	echo "Не введены никакие аргументы (Ничего не сделано). Аргументы вводятся так: time1 10 60 - значит на 10 компьютере будет установлено 60 минут до блокировки. Для моментальной блокировки нужно ввести: time 2 l - значит, второй компьютер будет заблокирован моментально. При подаче команды: time 3 - будет разблокирован 3 компьютер и ему будет выделено 61 минута времени"
+fi

@@ -1,0 +1,45 @@
+#!/bin/bash
+
+#EXPIRED_TIME2="
+path_expire_date="/var/admin/expire_date"
+export DISPLAY=:0
+#proverka1=$(( $EXPIRED_TIME1 -eq "10:10" ))
+#sleep 1
+last_time[1]=30
+last_time[2]=5
+proverka_time[1]=$(date --date="${last_time[1]} minutes" +%H:%M)
+proverka_time[2]=$(date --date="${last_time[2]} minutes" +%H:%M)
+now_expired=$(date +%H:%M)
+#считываем переменную из файла
+EXPIRED_TIME1=$(cat $path_expire_date)
+echo "now_expired: $now_expired"
+echo "EXPIRED_TIME1: $EXPIRED_TIME1"
+
+#условие блокировки
+kolvo_proverok_time=${#proverka_time[*]}
+echo "kolvo_proverok_time: $kolvo_proverok_time"
+
+#for i in ${proverka_time[@]}
+if [ "$EXPIRED_TIME1" == "$now_expired" ]
+then
+	echo "lock computer"
+	#ololo1=`loginctl --no-ask-password list-sessions | grep "seat" | grep $USER | awk '{print $1}' | tr '\n' ' '`
+	ololo1=`loginctl --no-ask-password list-sessions | grep "seat" | awk '{print $1}' | tr '\n' ' '`
+	#блокируем комп
+	#loginctl --no-ask-password lock-session $ololo1
+	loginctl --no-ask-password lock-session $ololo1
+	echo " " > $path_expire_date	#обнуляем время в файле
+	notify-send "ololo"
+else
+	for i in {1..2}
+	#for i in ${kolvo_proverok_time}
+	do
+		echo "ololo $i"
+		echo "${proverka_time[$i]}"
+		if [ "$EXPIRED_TIME1" == "${proverka_time[$i]}" ]
+		then
+			notify-send "${last_time[$i]} хв." "залишилось безкоштовного користування комп'ютером"
+	#		echo " " > $path_expire_date
+		fi
+	done
+fi
