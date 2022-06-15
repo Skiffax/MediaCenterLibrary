@@ -1,6 +1,6 @@
 <H2>Dir "ansibleskiff"</H2>
 contains files that are used by ansible.<br>
-It is creating directory in remote nodes <code>/var/admin/</code> and copying file <code>notifyskiff</code> into this dir.
+<br>- <code>playbook_copy_block_file.yml</code> need for creating directory in remote nodes <code>/var/admin/</code> and copying file <code>notifyskiff</code> into this dir.
 <br>- <code>playbook_install_some_programs.yml</code> contain all popular packages for users. Some packages installing by standart way. Some packages need to copy <code>.deb</code>-files and install from it.
 
 
