@@ -2,10 +2,26 @@
 ---
 - hosts: "all"
   tasks:
+  - name: create directory
+    file:
+      path="/var/admin"
+      state=directory
+      mode=0777
+      owner=root
+      group=root
+
   - name: copy notify-lockfile
     copy:
       src="/home/skiff/notifydobm/notifyskiff"
       dest="/var/admin/notifyskiff"
       mode=0755
+      owner=root
+      group=root
+  
+  - name: create expire-date file
+    file:
+      path="/var/admin/expire_date"
+      state=touch
+      mode=0777
       owner=root
       group=root
