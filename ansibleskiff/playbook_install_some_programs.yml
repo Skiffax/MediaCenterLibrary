@@ -1,0 +1,182 @@
+#playbook install some programs (test ansible)
+---
+- hosts: "all_others_linux"
+  become: yes
+  vars:
+    install_directory_user: "/usr/install"
+    adobe_version: "1.8.11"
+    adobe_url: "ftp://ftp.adobe.com/pub/adobe/reader/unix/9.x/9.5.5/enu/AdbeRdr9.5.5-1_i386linux_enu.deb"
+    adobe_tmp: "/tmp/adobe"
+  tasks:
+  - name: apt update
+    shell: apt update
+  - name: install java
+    apt:
+      name: openjdk-8-jdk
+      state: present
+      update_cache: yes
+  - name: copy packages
+    copy:
+      src="./install/anydesk_6.1.1-1_amd64.deb"
+      dest="{{ install_directory_user }}"
+      mode=0755
+      owner=root
+      group=root
+    copy:
+      src="./install/wps-office_11.1.0.11664.XA_amd64.deb"
+      dest="{{ install_directory_user }}"
+      mode=0755
+      owner=root
+      group=root
+    copy:
+      src="./install/zoom_amd64.deb"
+      dest="{{ install_directory_user }}"
+      mode=0755
+      owner=root
+      group=root
+    copy:
+      src="./install/viber.deb"
+      dest="{{ install_directory_user }}"
+      mode=0755
+      owner=root
+      group=root
+  - name: install zoom
+    apt:
+      deb: "{{ install_directory_user }}/zoom_amd64.deb"
+  - name: install viber
+    apt:
+      deb: "{{ install_directory_user }}/viber.deb"
+
+  - name: adding repository krita
+    apt_repository:
+      repo: ppa:kritalime/ppa
+      state: present
+  - name: install krita
+    apt:
+      name: krita
+      state: present
+      update_cache: yes
+    apt:
+      name: krita-l10n
+      state: present
+  - name: install double commander
+    apt:
+      name: doublecmd-gtk
+      state: present
+      update_cache: yes
+
+  - name: CHROME - install dependencies
+    apt:
+      name: 
+      - unzip 
+      - xvfb 
+      - libxi6 
+      - libgconf-2-4
+      - default-jdk 
+      state: present
+
+  - name: CHROME - add google repository key
+    apt_key:
+      url: 'https://dl-ssl.google.com/linux/linux_signing_key.pub'
+      state: present
+
+  - name: CHROME - add google repository
+    apt_repository:
+      repo: 'deb [arch=amd64]  http://dl.google.com/linux/chrome/deb/ stable main'
+      state: present
+      update_cache: yes
+
+  - name: CHROME - install package
+    apt:
+      name: google-chrome-stable
+      state: present  
+
+
+  - name: install gthumb
+    apt:
+      name: gthumb
+      state: present
+  - name: install cinnamon-environment
+    apt:
+      name: cinnamon-desktop-environment
+      state: present
+
+
+  - name: TELEGRAM - add telegram repository
+    apt_repository:
+      repo: 'ppa:atareao/telegram'
+      state: present
+      update_cache: yes
+  - name: TELEGRAM - install package
+    apt:
+      name: telegram
+      state: present
+
+
+  - name: INKSCAPE - add inkscape repo
+    apt_repository:
+      repo: ppa:inkscape.dev/stable
+      state: present
+      update_cache: yes
+  - name: INKSCAPE - install inkscape
+    apt:
+      name: inkscape
+      state: present
+
+
+  - name: adobe - install prereqs
+    apt:
+      name: ['libxml2:i386',
+            'libcanberra-gtk-module:i386',
+            'gtk2-engines-murrine:i386',
+            'libatk-adaptor:i386']
+      state: present
+
+  - name: adobe - Creates temporary directory
+    file:
+      path: "{{ adobe_tmp }}"
+      state: directory
+
+  - name: adobe - Download archive
+    get_url:
+      url: "{{ adobe_url }}"
+      dest: "{{ adobe_tmp }}/adobe.deb"
+      force: yes
+
+  - name: adobe - Install package
+    apt:
+      deb: "{{ adobe_tmp }}/adobe.deb"
+
+  - name: adobe - Remove temporary directory
+    file:
+      path: "{{ adobe_tmp }}"
+      state: absent
+
+
+  - name: WINEHQ - add key
+    become: yes
+    apt_key:
+      url: 'https://dl.winehq.org/wine-builds/winehq.key'
+      state: present
+
+  - name: WINEHQ - add repository Ubuntu 20.04
+    become: yes
+    apt_repository:
+      repo: deb https://dl.winehq.org/wine-builds/ubuntu/ focal main
+      state: present
+    when: ansible_distribution_version == '20.04'
+
+  - name: WINEHQ - install package
+    become: yes
+    apt:
+      name:
+        - winehq-stable
+        - winetricks
+      state: present
+      update_cache: yes
+  
+  - name: img2pdf - install package
+    apt:
+      name: img2pdf
+      state: present
+      update_cache: yes
