@@ -1,6 +1,7 @@
 #!/bin/bash
+#version: 2. time, shutdown, lock
 address_patient[1]="root@192.168.1.201"
-address_patient[2]="root@192.168.1.202"
+address_patient[2]="root@192.168.1.202"./
 address_patient[3]="root@192.168.1.203"
 address_patient[4]="root@192.168.1.204"
 address_patient[5]="root@192.168.1.205"
@@ -14,25 +15,32 @@ if [ $# != 0 ]
 then
 	nomer_patient=$1
 	#проверяем, чтобы номер компа был реальным
-	if [ $1 -eq "all" ]
+	if [ $1 == "all" ]
 	then
-		var_allcomputers=address_patient
+		#в переменную заносим размер массива (количество элементов массива)
+		var_allcomputers=${#address_patient[*]}
 	else
-		var_allcomputers=${address_patient[$nomer_patient]}
+		#в переменную заносим 1 комп
+		var_allcomputers=1
+		#перезаписываем первое значение в массиве на выбранный комп
+		address_patient[1]=${address_patient[$1]}
 	fi
 	
-	for i in var_allcomputers
+	for (( i=1; i<=$var_allcomputers; i++ ))
 	do
 		if [ $1 -gt ${#address_patient[*]} ]
 		then
 			echo "Введён неправильный номер компьютера"
 		else
-			tempaddress=${address_patient[$nomer_patient]}
+			tempaddress=${address_patient[$i]}
 			#если был передан параметр времени, то записываем его. если не был передан, то делаем по умолчанию 61 минуту
 			TEMP_EXPIRED_TIME=61
 			if [ $2 == 'l' ]
 			then
 				ssh $tempaddress 'bash -s' < lock_computer #script lock_computer должен лежать в той же папке, что и скрипт time
+			elif [ $2 == 'shutdown' ]
+			then
+				ssh $tempaddress 'shutdown now'
 			else
 				if [ $2 > 0 ]
 				then
@@ -57,5 +65,5 @@ then
 	
 	echo "Конец связи"
 else
-	echo "Не введены никакие аргументы (Ничего не сделано). Аргументы вводятся так: time1 10 60 - значит на 10 компьютере будет установлено 60 минут до блокировки. Для моментальной блокировки нужно ввести: time 2 l - значит, второй компьютер будет заблокирован моментально. При подаче команды: time 3 - будет разблокирован 3 компьютер и ему будет выделено 61 минута времени"
+	echo -e "Синтаксис скрипта:\n./time [<номер_компьютера> | all] [<время_блокировки> | l | shutdown]\n\nАргументы вводятся так: time1 10 60 - значит на 10 компьютере будет установлено 60 минут до блокировки. Для моментальной блокировки нужно ввести: time 2 l - значит, второй компьютер будет заблокирован моментально. При подаче команды: time 3 - будет разблокирован 3 компьютер и ему будет выделено 61 минута времени.\n\nМожно дать команду всем компьютерам, для этого после time нужно написать all, пример: time all 60 - значит, что на все компьютеры будет установлено время блокировки 60 минут.\n\nКоманда shutdown выключает выбранный компьютер\nКоманда l блокирует выбранный компьютер"
 fi
